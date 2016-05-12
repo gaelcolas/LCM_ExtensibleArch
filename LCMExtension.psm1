@@ -1,6 +1,6 @@
 ﻿#Requires -Modules PSRabbitMQ
 
-#By defining Global, the variable should be accessible 
+#By defining variable in Global scope, the variable should be accessible 
 # directly from within the Resources Get/Set/Tests functions/methods
 $Global:LCMData = [PSCustomObject]@{
   'Name' = 'LCMExtensionSample'
@@ -11,9 +11,14 @@ $Global:LCMData = [PSCustomObject]@{
                          }
 }
 
-
-Register-EngineEvent -SourceIdentifier LCMStartSet -Action { if(Test-WithinMaintenanceWindow) { New-Event -SourceIdentifier AllowDSCSet } }
-#This allows the DSC resource SET function/method to have a Get-Event or Wait-EngineEvent -SourceIdentifier AllowDSCSet -Timeout x
+#assuming LCMStartSet is the Event triggered when the LCM enters a resource's Set method 
+Register-EngineEvent -SourceIdentifier LCMStartSet -Action { 
+                    if(Test-WithinMaintenanceWindow) { 
+                       New-Event -SourceIdentifier AllowDSCSet 
+                     } 
+                   }
+#This allows the DSC resource SET function/method to have a Get-Event or 
+#  Wait-EngineEvent -SourceIdentifier AllowDSCSet -Timeout x
 function Test-WithinMaintenanceWindow {
  [cmdletBinding()]
  [outputType([bool])]
@@ -22,20 +27,23 @@ function Test-WithinMaintenanceWindow {
   $time = (Get-Date)
  )
 
- if($time -ge (& $Global:LCMData.MaintenanceWindow.WindowStart) -and $time -le (& $Global:LCMData.MaintenanceWindow.WindowEnd) ) {
+ if($time -ge (& $Global:LCMData.MaintenanceWindow.WindowStart) `
+     -and $time -le (& $Global:LCMData.MaintenanceWindow.WindowEnd) ) 
+ {
   Return $true
  }
  else {
   Return $false
  }
-
 }
 Export-ModuleMember -function Test-WithinMaintenanceWindow
 
 
 
 
-Register-EngineEvent -SourceIdentifier LCMStartTest -Action { Push-MQMessage -resource $event.MessageData.resource -ConfigurationID $event.MessageData.ConfigurationID }
+Register-EngineEvent -SourceIdentifier LCMStartTest -Action { 
+        Push-MQMessage -resource $event.MessageData.resource `
+        -ConfigurationID $event.MessageData.ConfigurationID  }
 #This could allow Realtime Asynchronous notifications to other systems
 function Push-MQMessage{
  [cmdletBinding()]
@@ -46,7 +54,9 @@ function Push-MQMessage{
  )
  $MQMsgParams = @{
   'Exchange' = 'myDSCTopicExchange'
-  'Key' = "$ConfigurationID.$resource" #the key is for routing from Exchange to Queues based on subscription
+  'Key' = "$ConfigurationID.$resource" 
+     #the key is for routing from Exchange to Queues based on subscription
+     # see http://www.rabbitmq.com/tutorials/tutorial-four-dotnet.html
   'InputObject' = ([PSCustomObject]@{
                        'EventTime'= (Get-Date -Format 'yyyy.MM.dd hh:mm:ss.fff')
                        'ComputerName'=$env:COMPUTERNAME
