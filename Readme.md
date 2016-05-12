@@ -73,13 +73,17 @@ the $LCMData as suggested above, and ensure, if you need to, the second resource
 
 
 ### Maintenance window
-Although one of the examples above, the Maintenance Window is probably the most useful one.
+Although one of the examples above, the Maintenance Window is probably not a good one.
 We believe that Maintenance Windows should still be part of the LCM (as per [Don's UserVoice](https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/11088780-add-maintenance-window-awareness-to-dsc-lcm)), so that when 
 reboots are needed, the actual reboot can be triggered only when the node enters
 its Maintenance window.
 
 Another drawback to have it implemented solely on custom extensions, is the need for convention
 for such common necessity.
+
+However the interesting design is that you can have an asychronous 
+message doing a query to an independent system with that model, and within the resource
+ have sometheing like wait-event -Timeout x.
 
 ### Integrating DSC with other system via MQ (or other)
 Other possibilities would be for integrating with other independent system, 
@@ -100,11 +104,15 @@ them based on their log level, and you having a system such as Logstash/ElasticS
 subscribe to them (ERROR level by default, but you can change to DEBUG 'on the fly'),
 and then displaying with, say, Kibana.
 
- 
+
+## What do you think?
+
 Do you have other ideas that could leverage such hypothetical LCM Extensible Architecture?
 Or do you think there are flaws in the idea making it impossible/impractical?
 
 Please comment on the userVoice.
+
+
 
 This has been inspired by Don Jones' session at the summit ['Stupid DSC Tricks'](https://www.youtube.com/watch?v=CyADIv3E-ec&list=PLfeA8kIs7Coc1Jn5hC4e_XgbFUaS5jY2i&index=18).
 
