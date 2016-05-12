@@ -1,6 +1,8 @@
 ﻿#Requires -Modules PSRabbitMQ
 
-$script:LCMData = [PSCustomObject]@{
+#By defining Global, the variable should be accessible 
+# directly from within the Resources Get/Set/Tests functions/methods
+$Global:LCMData = [PSCustomObject]@{
   'Name' = 'LCMExtensionSample'
   'Version' = [version]'0.0.1.2'
   'MaintenanceWindow' = [PSCustomObject]@{
@@ -20,7 +22,7 @@ function Test-WithinMaintenanceWindow {
   $time = (Get-Date)
  )
 
- if($time -ge (& $script:LCMData.MaintenanceWindow.WindowStart) -and $time -le (& $script:LCMData.MaintenanceWindow.WindowEnd) ) {
+ if($time -ge (& $Global:LCMData.MaintenanceWindow.WindowStart) -and $time -le (& $Global:LCMData.MaintenanceWindow.WindowEnd) ) {
   Return $true
  }
  else {
@@ -28,6 +30,9 @@ function Test-WithinMaintenanceWindow {
  }
 
 }
+Export-ModuleMember -function Test-WithinMaintenanceWindow
+
+
 
 
 Register-EngineEvent -SourceIdentifier LCMStartTest -Action { Push-MQMessage -resource $event.MessageData.resource -ConfigurationID $event.MessageData.ConfigurationID }
@@ -39,9 +44,9 @@ function Push-MQMessage{
   $ConfigurationID
   
  )
- $RabbitMQMsgParams = @{
+ $MQMsgParams = @{
   'Exchange' = 'myDSCTopicExchange'
-  'Key' = "$ConfigurationID.$resource"
+  'Key' = "$ConfigurationID.$resource" #the key is for routing from Exchange to Queues based on subscription
   'InputObject' = ([PSCustomObject]@{
                        'EventTime'= (Get-Date -Format 'yyyy.MM.dd hh:mm:ss.fff')
                        'ComputerName'=$env:COMPUTERNAME
@@ -49,7 +54,8 @@ function Push-MQMessage{
                     } | ConvertTo-Json -Depth ([int]::MaxValue)
   )
  }
- Send-RabbitMqMessage @RabbitMQMsgParams
+ Send-RabbitMqMessage @MQMsgParams
  
 }
 
+Export-ModuleMember -function Push-MQMessage
