@@ -1,4 +1,6 @@
-# UserVoice Request for DSC LCM Extensible Architecture
+# DSC LCM Extensible Architecture - UserVoice Request Draft
+
+_Not yet posted, feel free to add your feedback_.
 
 ## Context
 I was chatting with Don Jones about the relevance of integrating DSC with a Message Queue (or broker) such as RabbitMQ, and how it could be best implemented.
@@ -14,7 +16,7 @@ In summary the __LCM Extensible Architecture__ would do the following:
 4. He defines Event Handlers Actions that can call psm1's exported functions
 
 
-## Example
+## Example of Extension
 Have a look at [LCMExtension.psm1](LCMExtension.psm1) in this repo for more details
 
 ```powershell
