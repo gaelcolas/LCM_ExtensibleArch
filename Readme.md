@@ -1,6 +1,6 @@
 # DSC LCM Extensible Architecture - UserVoice Request Draft
 
-_Not yet posted, feel free to add your feedback_.
+_UserVoice link here: https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/13820658-lcm-extensible-architecture-powershell_.
 
 ## Context
 I was chatting with Don Jones about the relevance of integrating DSC with a Message Queue (or broker) such as RabbitMQ, and how it could be best implemented.
